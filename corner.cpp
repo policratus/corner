@@ -3,7 +3,6 @@
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/videoio.hpp>
-#include <opencv2/imgproc.hpp>
 #include <opencv2/core/mat.hpp>
 
 #include "cornerlib/cornerlib.hpp"
@@ -18,7 +17,7 @@ int main(int argc, char** argv){
      * Just use a image as marker and this marker must be also present in the scene.
     */
 
-    Corner corner;
+    Corner corner(Size(1280, 720));
 
     Mat frame;
     VideoCapture video;
@@ -33,7 +32,6 @@ int main(int argc, char** argv){
 
     // Loading the image marker.
     Mat markerImage = corner.getMarker(markerSource);
-    cout << "Marker image has size " + to_string(markerImage.size().height) + "x" + to_string(markerImage.size().width) << endl;
 
     // If "camera" was the choice of video source
     if (videoSource == "camera"){
@@ -98,18 +96,14 @@ int main(int argc, char** argv){
 
     namedWindow("Corner", WINDOW_AUTOSIZE);
 
-    double resizeRatio;
     // Video loop. Less things inside this loop, the better.
     while (true){
         video.read(frame);
 
         if (frame.empty()) break;
 
-        // The resize ratio, to later check if the frame must be resized or not.
-        resizeRatio = corner.resizeRespectingRatio(frame.size());
-
-        if (resizeRatio > .0)
-            resize(frame, frame, Size(), resizeRatio, resizeRatio);
+        corner.resizeToFit(frame);
+        corner.features(markerImage, frame);
 
         imshow("Corner", frame);
 
