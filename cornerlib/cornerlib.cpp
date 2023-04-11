@@ -67,7 +67,7 @@ double Corner::resizeRespectingRatio(Size currentSize){
      * returns zero (meaning no changes necessary), always keeping
      * the image ratio.
     */
-    if (currentSize.height > maximumDimensions.height)
+    if (currentSize.height > Corner::maximumDimensions.height)
         return (double)maximumDimensions.height / currentSize.height;
 
     if (currentSize.width > Corner::maximumDimensions.width)
@@ -109,8 +109,13 @@ tuple<string, path, float, float> Corner::commandLine(int const argumentCount, c
 }
 
 
-void Corner::features(Mat image, Mat &frame){
+void Corner::findMarker(Mat image, Mat &frame){
+    /*
+     * Finds the marker (if present in the image or frame) and segments it, applying
+     * any perpective transformation needed.
+    */
     const unsigned short int minimumMatches = 8;
+    unsigned short int goodMatches = 0;
 
     vector<KeyPoint> keypointsImage, keypointsFrame;
     Mat descriptorsImage, descriptorsFrame, homography;
@@ -123,22 +128,22 @@ void Corner::features(Mat image, Mat &frame){
     Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
 
     vector<vector<DMatch>> matches;
-    vector<DMatch> goodMatches;
     vector<Point> matchesQuery, matchesTrain;
 
     matcher->knnMatch(descriptorsImage, descriptorsFrame, matches, 2);
 
     for (unsigned short int match = 0; match < matches.size(); match++){
         if (matches[match][0].distance < .7 * matches[match][1].distance){
-            goodMatches.push_back(matches[match][0]);
+            goodMatches++;
+
             matchesQuery.push_back(keypointsImage[matches[match][0].queryIdx].pt);
             matchesTrain.push_back(keypointsFrame[matches[match][0].trainIdx].pt);
         }
     }
 
-    if (goodMatches.size() >= minimumMatches){
+    if (goodMatches >= minimumMatches){
 
-        homography = findHomography(matchesQuery, matchesTrain, RANSAC);
+        homography = findHomography(matchesQuery, matchesTrain, RHO);
 
         if (!homography.empty()){
             vector<Point2f> markerCorners(4);
