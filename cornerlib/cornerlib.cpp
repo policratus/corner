@@ -7,6 +7,9 @@
 #include <opencv2/core/mat.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
+#include <opencv2/features2d.hpp>
+#include <opencv2/calib3d.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include "cornerlib.hpp"
 
@@ -17,16 +20,22 @@ using namespace filesystem;
 using namespace cv;
 
 
-Mat Corner::getMarker(string filePath){
+Mat Corner::getMarker(string const filePath){
     /*
      * Reads a fiducial marker image that will be used as reference
     */
+    Mat image;
+
     if (!exists(filePath) || !haveImageReader(filePath)){
         cerr << endl << "Problems reading marker file in " + filePath << endl;
         exit(EXIT_FAILURE);
     }
 
-    return imread(filePath);
+    image = imread(filePath);
+
+    resizeToFit(image);
+
+    return image;
 }
 
 
@@ -58,13 +67,11 @@ double Corner::resizeRespectingRatio(Size currentSize){
      * returns zero (meaning no changes necessary), always keeping
      * the image ratio.
     */
-    Size const videoMaximumDimensions(1280, 720);
+    if (currentSize.height > Corner::maximumDimensions.height)
+        return (double)maximumDimensions.height / currentSize.height;
 
-    if (currentSize.height > videoMaximumDimensions.height)
-        return (double)videoMaximumDimensions.height / currentSize.height;
-
-    if (currentSize.width > videoMaximumDimensions.width)
-        return (double)videoMaximumDimensions.width / currentSize.width;
+    if (currentSize.width > Corner::maximumDimensions.width)
+        return (double)maximumDimensions.width / currentSize.width;
 
     return 0.;
 }
@@ -99,4 +106,72 @@ tuple<string, path, float, float> Corner::commandLine(int const argumentCount, c
         parser.get<float>("height"),
         parser.get<float>("width")
     );
+}
+
+
+void Corner::findMarker(Mat image, Mat &frame){
+    /*
+     * Finds the marker (if present in the image or frame) and segments it, applying
+     * any perpective transformation needed.
+    */
+    const unsigned short int minimumMatches = 8;
+    unsigned short int goodMatches = 0;
+
+    vector<KeyPoint> keypointsImage, keypointsFrame;
+    Mat descriptorsImage, descriptorsFrame, homography;
+
+    Ptr<SIFT> detector = SIFT::create();
+
+    detector->detectAndCompute(image, noArray(), keypointsImage, descriptorsImage);
+    detector->detectAndCompute(frame, noArray(), keypointsFrame, descriptorsFrame);
+
+    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
+
+    vector<vector<DMatch>> matches;
+    vector<Point> matchesQuery, matchesTrain;
+
+    matcher->knnMatch(descriptorsImage, descriptorsFrame, matches, 2);
+
+    for (unsigned short int match = 0; match < matches.size(); match++){
+        if (matches[match][0].distance < .7 * matches[match][1].distance){
+            goodMatches++;
+
+            matchesQuery.push_back(keypointsImage[matches[match][0].queryIdx].pt);
+            matchesTrain.push_back(keypointsFrame[matches[match][0].trainIdx].pt);
+        }
+    }
+
+    if (goodMatches >= minimumMatches){
+
+        homography = findHomography(matchesQuery, matchesTrain, RHO);
+
+        if (!homography.empty()){
+            vector<Point2f> markerCorners(4);
+
+            markerCorners[0] = Point2f(0, 0);
+            markerCorners[1] = Point2f(image.cols, 0);
+            markerCorners[2] = Point2f(image.cols, image.rows);
+            markerCorners[3] = Point2f(0, image.rows);
+
+            perspectiveTransform(markerCorners, markerCorners, homography);
+
+            vector<Point> markerCornersLines;
+            Mat(markerCorners).convertTo(markerCornersLines, CV_32S);
+
+            polylines(frame, markerCornersLines, true, Scalar(72, 151, 224), 1, LINE_AA);
+        }
+    }
+}
+
+
+void Corner::resizeToFit(Mat &image){
+    /*
+     * Resizes an image (or frame) to fit the initialized dimensions
+    */
+
+    // The resize ratio, to later check if the frame must be resized or not.
+    const double resizeRatio = resizeRespectingRatio(image.size());
+
+    if (resizeRatio > .0)
+        resize(image, image, Size(), resizeRatio, resizeRatio);
 }

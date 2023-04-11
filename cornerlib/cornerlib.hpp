@@ -17,11 +17,18 @@ using namespace cv;
 
 
 class Corner{
-    public:
-        Mat getMarker(string filePath);
-        unsigned short int numberOfCameraDevices();
+    private:
+        const Size maximumDimensions;
         double resizeRespectingRatio(Size currentSize);
+
+    public:
+        Corner(Size dimensions): maximumDimensions{dimensions} {}
+
+        Mat getMarker(string const filePath);
+        unsigned short int numberOfCameraDevices();
         tuple<string, path, float, float> commandLine(int const argumentCount, char** const argumentValues);
+        void findMarker(Mat image, Mat &frame);
+        void resizeToFit(Mat &image);
 };
 
 #endif
