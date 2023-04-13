@@ -109,7 +109,7 @@ tuple<string, path, float, float> Corner::commandLine(int const argumentCount, c
 }
 
 
-void Corner::findMarker(Mat image, Mat &frame){
+void Corner::findMarker(Mat image, Mat &frame, Size2f measurements){
     /*
      * Finds the marker (if present in the image or frame) and segments it, applying
      * any perpective transformation needed.
@@ -158,7 +158,20 @@ void Corner::findMarker(Mat image, Mat &frame){
             vector<Point> markerCornersLines;
             Mat(markerCorners).convertTo(markerCornersLines, CV_32S);
 
-            polylines(frame, markerCornersLines, true, Scalar(72, 151, 224), 1, LINE_AA);
+            const Scalar arrowColor = Scalar(113, 217, 125);
+            arrowedLine(frame, markerCorners[0], markerCorners[1], arrowColor, 1, LINE_AA);
+            arrowedLine(frame, markerCorners[1], markerCorners[2], arrowColor, 1, LINE_AA);
+
+            putText(
+                frame, format("%3.2f", measurements.height) + "cm",
+                (markerCorners[1] + markerCorners[2]) / 2, FONT_HERSHEY_DUPLEX, .5,
+                Scalar(128, 64, 32), 1, LINE_AA
+            );
+            putText(
+                frame, format("%3.2f", measurements.width) + "cm",
+                (markerCorners[0] + markerCorners[1]) / 2, FONT_HERSHEY_DUPLEX, .5,
+                Scalar(128, 64, 32), 1, LINE_AA
+            );
         }
     }
 }
@@ -171,7 +184,45 @@ void Corner::resizeToFit(Mat &image){
 
     // The resize ratio, to later check if the frame must be resized or not.
     const double resizeRatio = resizeRespectingRatio(image.size());
+    double maxContoursArea{0.}, currentArea;
 
     if (resizeRatio > .0)
         resize(image, image, Size(), resizeRatio, resizeRatio);
+}
+
+
+void Corner::segmentObject(Mat &image){
+    /*
+     * Segments the object of interest, localizing it.
+    */
+    const unsigned short int edgeThreshold = 100;
+    double maxContoursArea = 0., currentArea;
+
+    Mat edges;
+    vector<Point> maxContour;
+    vector<vector<Point>> contours;
+
+    Canny(image, edges, edgeThreshold, edgeThreshold * 3, 3, true);
+
+    dilate(edges, edges, noArray());
+    findContours(edges, contours, RETR_EXTERNAL, CHAIN_APPROX_TC89_KCOS);
+
+    for (vector<Point> &contour: contours){
+        currentArea = contourArea(contour);
+
+        if (currentArea > maxContoursArea){
+            maxContoursArea = currentArea;
+            maxContour = contour;
+        }
+    }
+
+    RotatedRect rotatedRectangle = minAreaRect(maxContour);
+    Point2f rotatedBox[4];
+    rotatedRectangle.points(rotatedBox);
+
+    const Scalar rotatedRectangleColor = Scalar(245, 118, 219);
+    line(image, rotatedBox[0], rotatedBox[1], rotatedRectangleColor, 2, LINE_AA);
+    line(image, rotatedBox[1], rotatedBox[2], rotatedRectangleColor, 2, LINE_AA);
+    line(image, rotatedBox[2], rotatedBox[3], rotatedRectangleColor, 2, LINE_AA);
+    line(image, rotatedBox[3], rotatedBox[0], rotatedRectangleColor, 2, LINE_AA);
 }
