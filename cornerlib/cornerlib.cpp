@@ -162,15 +162,16 @@ void Corner::findMarker(Mat image, Mat &frame, Size2f measurements){
             arrowedLine(frame, markerCorners[0], markerCorners[1], arrowColor, 1, LINE_AA);
             arrowedLine(frame, markerCorners[1], markerCorners[2], arrowColor, 1, LINE_AA);
 
+            const Scalar textColor = Scalar(128, 64, 32);
             putText(
                 frame, format("%3.2f", measurements.height) + "cm",
                 (markerCorners[1] + markerCorners[2]) / 2, FONT_HERSHEY_DUPLEX, .5,
-                Scalar(128, 64, 32), 1, LINE_AA
+                textColor, 1, LINE_AA
             );
             putText(
                 frame, format("%3.2f", measurements.width) + "cm",
                 (markerCorners[0] + markerCorners[1]) / 2, FONT_HERSHEY_DUPLEX, .5,
-                Scalar(128, 64, 32), 1, LINE_AA
+                textColor, 1, LINE_AA
             );
         }
     }
@@ -221,8 +222,8 @@ void Corner::segmentObject(Mat &image){
     rotatedRectangle.points(rotatedBox);
 
     const Scalar rotatedRectangleColor = Scalar(245, 118, 219);
-    line(image, rotatedBox[0], rotatedBox[1], rotatedRectangleColor, 2, LINE_AA);
-    line(image, rotatedBox[1], rotatedBox[2], rotatedRectangleColor, 2, LINE_AA);
-    line(image, rotatedBox[2], rotatedBox[3], rotatedRectangleColor, 2, LINE_AA);
-    line(image, rotatedBox[3], rotatedBox[0], rotatedRectangleColor, 2, LINE_AA);
+    line(image, rotatedBox[0], rotatedBox[1], rotatedRectangleColor, 1, LINE_AA);
+    line(image, rotatedBox[1], rotatedBox[2], rotatedRectangleColor, 1, LINE_AA);
+    line(image, rotatedBox[2], rotatedBox[3], rotatedRectangleColor, 1, LINE_AA);
+    line(image, rotatedBox[3], rotatedBox[0], rotatedRectangleColor, 1, LINE_AA);
 }
