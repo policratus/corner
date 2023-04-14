@@ -91,9 +91,6 @@ int main(int argc, char** argv){
         return EXIT_FAILURE;
     }
 
-    cout << "Marker height: " + to_string(markerHeight) + " cm." << endl;
-    cout << "Marker width: " + to_string(markerWidth) + " cm." << endl;
-
     namedWindow("Corner", WINDOW_AUTOSIZE);
 
     // Video loop. Less things inside this loop, the better.
@@ -103,7 +100,9 @@ int main(int argc, char** argv){
         if (frame.empty()) break;
 
         corner.resizeToFit(frame);
-        corner.findMarker(markerImage, frame);
+        corner.findMarker(markerImage, frame, Size2f(markerHeight, markerWidth));
+
+        corner.segmentObject(frame);
 
         imshow("Corner", frame);
 

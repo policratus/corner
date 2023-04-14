@@ -27,8 +27,10 @@ class Corner{
         Mat getMarker(string const filePath);
         unsigned short int numberOfCameraDevices();
         tuple<string, path, float, float> commandLine(int const argumentCount, char** const argumentValues);
-        void findMarker(Mat image, Mat &frame);
+        void findMarker(Mat image, Mat &frame, Size2f measurements);
         void resizeToFit(Mat &image);
+        void segmentObject(Mat &image);
 };
+
 
 #endif
