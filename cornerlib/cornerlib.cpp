@@ -133,7 +133,7 @@ void Corner::findMarker(Mat image, Mat &frame, Size2f measurements, Point2f &nor
     matcher->knnMatch(descriptorsImage, descriptorsFrame, matches, 2);
 
     for (unsigned short int match = 0; match < matches.size(); match++){
-        if (matches[match][0].distance < .7 * matches[match][1].distance){
+        if (matches[match][0].distance < .6 * matches[match][1].distance){
             goodMatches++;
 
             matchesQuery.push_back(keypointsImage[matches[match][0].queryIdx].pt);
@@ -200,13 +200,15 @@ void Corner::segmentObject(Mat &image, Point2f markerNorms){
     const unsigned short int edgeThreshold = 100;
     double maxContoursArea = 0., currentArea;
 
-    Mat edges;
+    Mat edges, imageOneChannel;
     vector<Point> maxContour;
     vector<vector<Point>> contours;
 
-    Canny(image, edges, edgeThreshold, edgeThreshold * 3, 3, true);
-
+    cvtColor(image, imageOneChannel, COLOR_BGR2GRAY);
+    blur(imageOneChannel, imageOneChannel, Size(3, 3));
+    Canny(imageOneChannel, edges, edgeThreshold, edgeThreshold * 3, 3, true);
     dilate(edges, edges, noArray());
+    erode(edges, edges, noArray());
     findContours(edges, contours, RETR_EXTERNAL, CHAIN_APPROX_TC89_KCOS);
 
     for (vector<Point> &contour: contours){
