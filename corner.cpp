@@ -25,10 +25,8 @@ int main(int argc, char** argv){
     // Command line arguments parsed
     string videoSource;
     path markerSource;
-    float markerHeight;
-    float markerWidth;
 
-    tie(videoSource, markerSource, markerHeight, markerWidth) = corner.commandLine(argc, argv);
+    tie(videoSource, markerSource, corner.markerSize.y, corner.markerSize.x) = corner.commandLine(argc, argv);
 
     // Loading the image marker.
     Mat markerImage = corner.getMarker(markerSource);
@@ -93,6 +91,8 @@ int main(int argc, char** argv){
 
     namedWindow("Corner", WINDOW_AUTOSIZE);
 
+    // Store the norm of the two segments from marker
+    Point2f norms;
     // Video loop. Less things inside this loop, the better.
     while (true){
         video.read(frame);
@@ -100,9 +100,9 @@ int main(int argc, char** argv){
         if (frame.empty()) break;
 
         corner.resizeToFit(frame);
-        corner.findMarker(markerImage, frame, Size2f(markerHeight, markerWidth));
+        corner.findMarker(markerImage, frame, corner.markerSize, norms);
 
-        corner.segmentObject(frame);
+        corner.measureObject(frame, norms);
 
         imshow("Corner", frame);
 

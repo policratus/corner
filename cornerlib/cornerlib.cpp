@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include <opencv2/core/mat.hpp>
+#include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/features2d.hpp>
@@ -109,7 +109,7 @@ tuple<string, path, float, float> Corner::commandLine(int const argumentCount, c
 }
 
 
-void Corner::findMarker(Mat image, Mat &frame, Size2f measurements){
+void Corner::findMarker(Mat image, Mat &frame, Size2f measurements, Point2f &norms){
     /*
      * Finds the marker (if present in the image or frame) and segments it, applying
      * any perpective transformation needed.
@@ -133,7 +133,7 @@ void Corner::findMarker(Mat image, Mat &frame, Size2f measurements){
     matcher->knnMatch(descriptorsImage, descriptorsFrame, matches, 2);
 
     for (unsigned short int match = 0; match < matches.size(); match++){
-        if (matches[match][0].distance < .7 * matches[match][1].distance){
+        if (matches[match][0].distance < .6 * matches[match][1].distance){
             goodMatches++;
 
             matchesQuery.push_back(keypointsImage[matches[match][0].queryIdx].pt);
@@ -155,9 +155,6 @@ void Corner::findMarker(Mat image, Mat &frame, Size2f measurements){
 
             perspectiveTransform(markerCorners, markerCorners, homography);
 
-            vector<Point> markerCornersLines;
-            Mat(markerCorners).convertTo(markerCornersLines, CV_32S);
-
             const Scalar arrowColor = Scalar(113, 217, 125);
             arrowedLine(frame, markerCorners[0], markerCorners[1], arrowColor, 1, LINE_AA);
             arrowedLine(frame, markerCorners[1], markerCorners[2], arrowColor, 1, LINE_AA);
@@ -173,6 +170,10 @@ void Corner::findMarker(Mat image, Mat &frame, Size2f measurements){
                 (markerCorners[0] + markerCorners[1]) / 2, FONT_HERSHEY_DUPLEX, .5,
                 textColor, 1, LINE_AA
             );
+
+            // Returning the norms from the found segments
+            norms.x = norm(Mat(markerCorners[0]), Mat(markerCorners[1]));
+            norms.y = norm(Mat(markerCorners[1]), Mat(markerCorners[2]));
         }
     }
 }
@@ -192,20 +193,22 @@ void Corner::resizeToFit(Mat &image){
 }
 
 
-void Corner::segmentObject(Mat &image){
+void Corner::measureObject(Mat &image, Point2f markerNorms){
     /*
-     * Segments the object of interest, localizing it.
+     * Measures the object of interest, segmenting and localizing it.
     */
     const unsigned short int edgeThreshold = 100;
     double maxContoursArea = 0., currentArea;
 
-    Mat edges;
+    Mat edges, imageOneChannel;
     vector<Point> maxContour;
     vector<vector<Point>> contours;
 
-    Canny(image, edges, edgeThreshold, edgeThreshold * 3, 3, true);
-
+    cvtColor(image, imageOneChannel, COLOR_BGR2GRAY);
+    blur(imageOneChannel, imageOneChannel, Size(3, 3));
+    Canny(imageOneChannel, edges, edgeThreshold, edgeThreshold * 3, 3, true);
     dilate(edges, edges, noArray());
+    erode(edges, edges, noArray());
     findContours(edges, contours, RETR_EXTERNAL, CHAIN_APPROX_TC89_KCOS);
 
     for (vector<Point> &contour: contours){
@@ -226,4 +229,21 @@ void Corner::segmentObject(Mat &image){
     line(image, rotatedBox[1], rotatedBox[2], rotatedRectangleColor, 1, LINE_AA);
     line(image, rotatedBox[2], rotatedBox[3], rotatedRectangleColor, 1, LINE_AA);
     line(image, rotatedBox[3], rotatedBox[0], rotatedRectangleColor, 1, LINE_AA);
+
+    const Size2f sizes = Size2f(
+        norm(Mat(rotatedBox[0]), Mat(rotatedBox[1])) * markerSize.x / markerNorms.x,
+        norm(Mat(rotatedBox[1]), Mat(rotatedBox[2])) * markerSize.y / markerNorms.y
+    );
+
+    const Scalar textColor = Scalar(34, 76, 173);
+    putText(
+        image, format("%3.2f", sizes.width) + "cm",
+        (rotatedBox[0] + rotatedBox[1]) / 2, FONT_HERSHEY_DUPLEX, .5,
+        textColor, 1, LINE_AA
+    );
+    putText(
+        image, format("%3.2f", sizes.height) + "cm",
+        (rotatedBox[1] + rotatedBox[2]) / 2, FONT_HERSHEY_DUPLEX, .5,
+        textColor, 1, LINE_AA
+    );
 }
