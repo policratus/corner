@@ -193,7 +193,7 @@ void Corner::resizeToFit(Mat &image){
 }
 
 
-void Corner::segmentObject(Mat &image, Point2f markerNorms){
+void Corner::measureObject(Mat &image, Point2f markerNorms){
     /*
      * Segments the object of interest, localizing it.
     */

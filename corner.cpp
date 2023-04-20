@@ -102,7 +102,7 @@ int main(int argc, char** argv){
         corner.resizeToFit(frame);
         corner.findMarker(markerImage, frame, corner.markerSize, norms);
 
-        corner.segmentObject(frame, norms);
+        corner.measureObject(frame, norms);
 
         imshow("Corner", frame);
 
