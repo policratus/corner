@@ -195,7 +195,7 @@ void Corner::resizeToFit(Mat &image){
 
 void Corner::measureObject(Mat &image, Point2f markerNorms){
     /*
-     * Segments the object of interest, localizing it.
+     * Measures the object of interest, segmenting and localizing it.
     */
     const unsigned short int edgeThreshold = 100;
     double maxContoursArea = 0., currentArea;
