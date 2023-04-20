@@ -237,12 +237,12 @@ void Corner::segmentObject(Mat &image, Point2f markerNorms){
 
     const Scalar textColor = Scalar(34, 76, 173);
     putText(
-        image, format("%3.2f", sizes.height) + "cm",
+        image, format("%3.2f", sizes.width) + "cm",
         (rotatedBox[0] + rotatedBox[1]) / 2, FONT_HERSHEY_DUPLEX, .5,
         textColor, 1, LINE_AA
     );
     putText(
-        image, format("%3.2f", sizes.width) + "cm",
+        image, format("%3.2f", sizes.height) + "cm",
         (rotatedBox[1] + rotatedBox[2]) / 2, FONT_HERSHEY_DUPLEX, .5,
         textColor, 1, LINE_AA
     );
