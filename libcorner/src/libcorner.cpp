@@ -11,7 +11,7 @@
 #include <opencv2/calib3d.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "cornerlib.hpp"
+#include "libcorner.hpp"
 
 
 using namespace std;
@@ -186,7 +186,6 @@ void Corner::resizeToFit(Mat &image){
 
     // The resize ratio, to later check if the frame must be resized or not.
     const double resizeRatio = resizeRespectingRatio(image.size());
-    double maxContoursArea{0.}, currentArea;
 
     if (resizeRatio > .0)
         resize(image, image, Size(), resizeRatio, resizeRatio);

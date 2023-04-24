@@ -5,9 +5,10 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/core/mat.hpp>
 
-#include "cornerlib/cornerlib.hpp"
+#include "libcorner.hpp"
 
 
+using namespace std;
 using namespace filesystem;
 
 
