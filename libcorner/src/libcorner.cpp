@@ -26,10 +26,9 @@ Mat Corner::getMarker(string const filePath){
     */
     Mat image;
 
-    if (!exists(filePath) || !haveImageReader(filePath)){
-        cerr << endl << "Problems reading marker file in " + filePath << endl;
-        exit(EXIT_FAILURE);
-    }
+    error_code error;
+    if (!exists(filePath, error) || !haveImageReader(filePath))
+        throw filesystem_error{"Problems reading marker file.", error};
 
     image = imread(filePath);
 
@@ -118,12 +117,15 @@ void Corner::findMarker(Mat image, Mat &frame, Size2f measurements, Point2f &nor
     unsigned short int goodMatches = 0;
 
     vector<KeyPoint> keypointsImage, keypointsFrame;
-    Mat descriptorsImage, descriptorsFrame, homography;
+    Mat descriptorsImage, descriptorsFrame, homography, imageOneChannel, frameOneChannel;
 
     Ptr<SIFT> detector = SIFT::create();
 
-    detector->detectAndCompute(image, noArray(), keypointsImage, descriptorsImage);
-    detector->detectAndCompute(frame, noArray(), keypointsFrame, descriptorsFrame);
+    cvtColor(frame, frameOneChannel, COLOR_BGR2GRAY);
+    cvtColor(image, imageOneChannel, COLOR_BGR2GRAY);
+
+    detector->detectAndCompute(imageOneChannel, noArray(), keypointsImage, descriptorsImage);
+    detector->detectAndCompute(frameOneChannel, noArray(), keypointsFrame, descriptorsFrame);
 
     Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create(DescriptorMatcher::FLANNBASED);
 
@@ -192,10 +194,11 @@ void Corner::resizeToFit(Mat &image){
 }
 
 
-void Corner::measureObject(Mat &image, Point2f markerNorms){
+RotatedRect Corner::boundingBox(Mat image){
     /*
-     * Measures the object of interest, segmenting and localizing it.
+     * Detect the minimal rotated bounding box for the object.
     */
+
     const unsigned short int edgeThreshold = 100;
     double maxContoursArea = 0., currentArea;
 
@@ -219,7 +222,28 @@ void Corner::measureObject(Mat &image, Point2f markerNorms){
         }
     }
 
-    RotatedRect rotatedRectangle = minAreaRect(maxContour);
+    return minAreaRect(maxContour);
+}
+
+
+Size2f Corner::measure(Point2f* rotatedBox, Point2f markerNorms){
+    /*
+     * Calculates the measurements of detected object.
+    */
+
+    return Size2f(
+        norm(Mat(rotatedBox[0]), Mat(rotatedBox[1])) * markerSize.x / markerNorms.x,
+        norm(Mat(rotatedBox[1]), Mat(rotatedBox[2])) * markerSize.y / markerNorms.y
+    );
+}
+
+
+void Corner::drawMeasurementsObject(Mat &image, Point2f markerNorms){
+    /*
+     * Draws the calculated measurements for the object of interest.
+    */
+
+    RotatedRect rotatedRectangle(boundingBox(image));
     Point2f rotatedBox[4];
     rotatedRectangle.points(rotatedBox);
 
@@ -229,10 +253,7 @@ void Corner::measureObject(Mat &image, Point2f markerNorms){
     line(image, rotatedBox[2], rotatedBox[3], rotatedRectangleColor, 1, LINE_AA);
     line(image, rotatedBox[3], rotatedBox[0], rotatedRectangleColor, 1, LINE_AA);
 
-    const Size2f sizes = Size2f(
-        norm(Mat(rotatedBox[0]), Mat(rotatedBox[1])) * markerSize.x / markerNorms.x,
-        norm(Mat(rotatedBox[1]), Mat(rotatedBox[2])) * markerSize.y / markerNorms.y
-    );
+    Size2f sizes(measure(rotatedBox, markerNorms));
 
     const Scalar textColor = Scalar(34, 76, 173);
     putText(

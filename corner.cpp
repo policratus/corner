@@ -94,6 +94,7 @@ int main(int argc, char** argv){
 
     // Store the norm of the two segments from marker
     Point2f norms;
+
     // Video loop. Less things inside this loop, the better.
     while (true){
         video.read(frame);
@@ -101,9 +102,10 @@ int main(int argc, char** argv){
         if (frame.empty()) break;
 
         corner.resizeToFit(frame);
+
         corner.findMarker(markerImage, frame, corner.markerSize, norms);
 
-        corner.measureObject(frame, norms);
+        corner.drawMeasurementsObject(frame, norms);
 
         imshow("Corner", frame);
 
