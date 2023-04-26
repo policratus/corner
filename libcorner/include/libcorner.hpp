@@ -31,7 +31,9 @@ class Corner{
         tuple<string, path, float, float> commandLine(int const argumentCount, char** const argumentValues);
         void findMarker(Mat image, Mat &frame, Size2f measurements, Point2f &norms);
         void resizeToFit(Mat &image);
-        void measureObject(Mat &image, Point2f markerNorms);
+        RotatedRect boundingBox(Mat image);
+        Size2f measure(Point2f* rotatedBox, Point2f markerNorms);
+        void drawMeasurementsObject(Mat &image, Point2f markerNorms);
 };
 
 
