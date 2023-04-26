@@ -45,7 +45,7 @@ TEST_CASE("Testing resizing methods"){
         REQUIRE(image.size() == videoDimensions);
     }
 
-    SECTION("Image or frame resizing bigger than video dimensions."){
+    SECTION("Image or frame resizing width bigger than video dimensions."){
         const Size biggerSizeWidth = Size(videoDimensions.width * 2, videoDimensions.height / 2);
         Mat image(biggerSizeWidth, CV_8UC1, Scalar(0));
 
