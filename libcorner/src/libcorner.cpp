@@ -76,6 +76,7 @@ double Corner::resizeRespectingRatio(Size currentSize){
 }
 
 
+// LCOV_EXCL_START
 tuple<string, path, float, float> Corner::commandLine(int const argumentCount, char** const argumentValues){
     // Command line options
     const String keys =
@@ -106,6 +107,7 @@ tuple<string, path, float, float> Corner::commandLine(int const argumentCount, c
         parser.get<float>("width")
     );
 }
+// LCOV_EXCL_STOP
 
 
 void Corner::findMarker(Mat image, Mat &frame, Size2f measurements, Point2f &norms){
