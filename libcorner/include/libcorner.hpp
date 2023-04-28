@@ -2,8 +2,8 @@
  * Corner library header definitions
 */
 
-#ifndef CORNER_HPP_INCLUDED
-#define CORNER_HPP_INCLUDED
+#ifndef LIBCORNER_HPP_INCLUDED
+#define LIBCORNER_HPP_INCLUDED
 
 #include <filesystem>
 
@@ -22,11 +22,11 @@ class Corner{
         double resizeRespectingRatio(Size currentSize);
 
     public:
-        Corner(Size dimensions): maximumDimensions{dimensions} {}
+        explicit Corner(Size dimensions): maximumDimensions{dimensions} {}
 
         Point2f markerSize;
 
-        Mat getMarker(string const filePath);
+        Mat getMarker(string const& filePath);
         unsigned short int numberOfCameraDevices();
         tuple<string, path, float, float> commandLine(int const argumentCount, char** const argumentValues);
         void findMarker(Mat image, Mat &frame, Size2f measurements, Point2f &norms);
