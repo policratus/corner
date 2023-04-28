@@ -1,4 +1,4 @@
-name: CMake
+name: Tests and coverage
 
 on:
   push:
@@ -6,11 +6,8 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  BUILD_TYPE: Debug
-
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,11 +17,33 @@ jobs:
       run: sudo apt-get install libopencv-dev catch2 -y
 
     - name: Configure CMake
-      run: cmake -S ${{github.workspace}}/tests -B ${{github.workspace}}/tests/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -S ${{github.workspace}}/tests -B ${{github.workspace}}/tests/build
 
     - name: Build tests
-      run: cmake --build ${{github.workspace}}/tests/build --config ${{env.BUILD_TYPE}}
+      run: cmake --build ${{github.workspace}}/tests/build
 
     - name: Run tests
-      working-directory: ${{github.workspace}}/tests/build
       run: ${{github.workspace}}/tests/build/tests -s
+
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: sudo apt-get install libopencv-dev catch2 lcov -y
+
+    - name: Configure CMake
+      run: cmake -S ${{github.workspace}}/tests -B ${{github.workspace}}/tests/build
+
+    - name: Build tests
+      run: cmake --build ${{github.workspace}}/tests/build
+
+    - name: Run tests
+      run: ${{github.workspace}}/tests/build/tests -s
+
+    - name: Run test coverage
+      run: |
+        lcov --capture --directory . --output-file /tmp/coverage.info
+        lcov --remove /tmp/coverage.info '*tests*' '*include*' -o /tmp/coverage.info
