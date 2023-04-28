@@ -19,6 +19,6 @@ jobs:
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: |
         sudo apt-get install libopencv-dev -y
-        cmake -B ${{github.workspace}}/tests/build
+        cmake -S ${{github.workspace}}/tests -B ${{github.workspace}}/tests/build
         cmake --build ${{github.workspace}}/tests/build
         ${{github.workspace}}/tests/build/tests -s
