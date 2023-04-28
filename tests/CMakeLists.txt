@@ -4,10 +4,8 @@ project(tests VERSION 0.0.1)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_BUILD_TYPE Debug)
-
-include(CodeCoverage.cmake)
-APPEND_COVERAGE_COMPILER_FLAGS()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -coverage")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -coverage")
 
 set(libcornerinclude "${PROJECT_SOURCE_DIR}/../libcorner/include")
 set(libcornersource "${PROJECT_SOURCE_DIR}/../libcorner/src")
