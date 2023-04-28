@@ -17,6 +17,7 @@ jobs:
       run: |
         sudo apt install libopencv-dev -y
         cmake -B ${{github.workspace}}/tests/build
+        cmake --build ${{github.workspace}}/tests/build
 
     - name: Run tests
       working-directory: ${{github.workspace}}/tests/build
