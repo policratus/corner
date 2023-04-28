@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(libcornerinclude "${PROJECT_SOURCE_DIR}/libcorner/include")
 set(libcornersource "${PROJECT_SOURCE_DIR}/libcorner/src")
 
-find_package(OpenCV 4.7.0 EXACT REQUIRED PATHS /home/policratus/.opencv-4.7.0)
+find_package(OpenCV REQUIRED)
 
 add_library(libcorner STATIC "${libcornerinclude}/libcorner.hpp" "${libcornersource}/libcorner.cpp")
 target_include_directories(libcorner PRIVATE ${libcornerinclude})

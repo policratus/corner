@@ -23,10 +23,10 @@ int main(int argc, char** argv){
     Mat frame;
     VideoCapture video;
 
-    // Command line arguments parsed
     string videoSource;
     path markerSource;
 
+    // Command line arguments parsed
     tie(videoSource, markerSource, corner.markerSize.y, corner.markerSize.x) = corner.commandLine(argc, argv);
 
     // Loading the image marker.
@@ -34,12 +34,12 @@ int main(int argc, char** argv){
 
     // If "camera" was the choice of video source
     if (videoSource == "camera"){
-        const unsigned short int devices = corner.numberOfCameraDevices();
+        unsigned short int devices = corner.numberOfCameraDevices();
 
         // If found at least one camera
         if (devices > 0){
             if (devices == 1){ // If found just one camera, use it.
-                video.open(devices - 1);
+                video.open(--devices);
             } else {
                 // More than one camera was found. User must choose one of them.
                 unsigned short int chosenCamera;

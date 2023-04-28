@@ -1,0 +1,30 @@
+name: CMake
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: sudo apt-get install libopencv-dev catch2 -y
+
+    - name: Configure CMake
+      run: cmake -S ${{github.workspace}}/tests -B ${{github.workspace}}/tests/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+
+    - name: Build tests
+      run: cmake --build ${{github.workspace}}/tests/build --config ${{env.BUILD_TYPE}}
+
+    - name: Run tests
+      working-directory: ${{github.workspace}}/tests/build
+      run: ${{github.workspace}}/tests/build/tests -s

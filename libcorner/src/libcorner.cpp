@@ -20,7 +20,7 @@ using namespace filesystem;
 using namespace cv;
 
 
-Mat Corner::getMarker(string const filePath){
+Mat Corner::getMarker(string const& filePath){
     /*
      * Reads a fiducial marker image that will be used as reference
     */
