@@ -1,4 +1,4 @@
-name: Tests and coverage
+name: Tests, coverage and build
 
 on:
   push:
@@ -14,27 +14,9 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Install dependencies
-      run: sudo apt-get install libopencv-dev catch2 -y
-
-    - name: Configure CMake
-      run: cmake -S ${{github.workspace}}/tests -B ${{github.workspace}}/tests/build
-
-    - name: Build tests
-      run: cmake --build ${{github.workspace}}/tests/build
-
-    - name: Run tests
-      run: ${{github.workspace}}/tests/build/tests -s
-
-  coverage:
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Install dependencies
       run: sudo apt-get install libopencv-dev catch2 lcov -y
 
-    - name: Configure CMake
+    - name: Configure CMake for tests and coverage
       run: cmake -S ${{github.workspace}}/tests -B ${{github.workspace}}/tests/build
 
     - name: Build tests
@@ -47,3 +29,9 @@ jobs:
       run: |
         lcov --capture --directory . --output-file /tmp/coverage.info
         lcov --remove /tmp/coverage.info '*tests*' '*include*' -o /tmp/coverage.info
+
+    - name: Configure CMake for builds
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build
+
+    - name: Build application
+      run: cmake --build ${{github.workspace}}/build
