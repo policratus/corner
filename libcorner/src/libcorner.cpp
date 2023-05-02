@@ -202,7 +202,7 @@ RotatedRect Corner::boundingBox(Mat image){
     */
 
     const unsigned short int edgeThreshold = 100;
-    double maxContoursArea = 0., currentArea;
+    double maxContoursArea = 0.f;
 
     Mat edges, imageOneChannel;
     vector<Point> maxContour;
@@ -216,7 +216,7 @@ RotatedRect Corner::boundingBox(Mat image){
     findContours(edges, contours, RETR_EXTERNAL, CHAIN_APPROX_TC89_KCOS);
 
     for (vector<Point> &contour: contours){
-        currentArea = contourArea(contour);
+        double currentArea(contourArea(contour));
 
         if (currentArea > maxContoursArea){
             maxContoursArea = currentArea;
