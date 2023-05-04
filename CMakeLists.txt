@@ -12,7 +12,9 @@ set(libcornersource "${PROJECT_SOURCE_DIR}/libcorner/src")
 
 find_package(OpenCV REQUIRED)
 
-add_library(libcorner STATIC "${libcornerinclude}/libcorner.hpp" "${libcornersource}/libcorner.cpp")
+add_library(libcorner SHARED "${libcornerinclude}/libcorner.hpp" "${libcornersource}/libcorner.cpp")
+set_target_properties(libcorner PROPERTIES PREFIX "lib")
+set_target_properties(libcorner PROPERTIES OUTPUT_NAME "corner-${PROJECT_VERSION}")
 target_include_directories(libcorner PRIVATE ${libcornerinclude})
 target_link_libraries(libcorner PRIVATE ${OpenCV_LIBS})
 
