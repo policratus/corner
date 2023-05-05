@@ -18,6 +18,14 @@ set_target_properties(libcorner PROPERTIES OUTPUT_NAME "corner-${PROJECT_VERSION
 target_include_directories(libcorner PRIVATE ${libcornerinclude})
 target_link_libraries(libcorner PRIVATE ${OpenCV_LIBS})
 
+install(TARGETS libcorner DESTINATION lib)
+install(FILES "${libcornerinclude}/libcorner.hpp" DESTINATION innclude)
+
 add_executable(corner corner.cpp)
 target_include_directories(corner PRIVATE ${libcornerinclude})
 target_link_libraries(corner PRIVATE ${OpenCV_LIBS} libcorner)
+
+install(TARGETS corner DESTINATION bin)
+
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
+include(packages)

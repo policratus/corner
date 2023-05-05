@@ -38,3 +38,6 @@ jobs:
 
     - name: Build application
       run: cmake --build ${{github.workspace}}/build
+
+    - name: Generate Debian packages
+      run: cpack -G DEB -B ${{github.workspace}}/build --config build/CPackConfig.cmake
