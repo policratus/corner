@@ -62,7 +62,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/build
 
   packaging:
-    needs: build
+    needs: tests-coverage
 
     runs-on: ubuntu-latest
 
@@ -71,6 +71,12 @@ jobs:
 
     - name: Install dependencies
       run: sudo apt-get install libopencv-dev -y
+
+    - name: Configure CMake for builds
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build
+
+    - name: Build application
+      run: cmake --build ${{github.workspace}}/build
 
     - name: Generate Debian packages
       run: cpack -G DEB -B ${{github.workspace}}/build --config build/CPackConfig.cmake
