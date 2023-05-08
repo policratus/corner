@@ -7,17 +7,28 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  static:
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
 
     - name: Install dependencies
-      run: sudo apt-get install libopencv-dev catch2 cppcheck lcov -y
+      run: sudo apt-get install cppcheck -y
 
     - name: Static analysis
       run: cppcheck ${{github.workspace}}
+
+  tests-coverage:
+    needs: static
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: sudo apt-get install libopencv-dev catch2 lcov -y
 
     - name: Configure CMake for tests and coverage
       run: cmake -S ${{github.workspace}}/tests -B ${{github.workspace}}/tests/build
@@ -33,11 +44,33 @@ jobs:
         lcov --capture --directory . --output-file /tmp/coverage.info
         lcov --remove /tmp/coverage.info '*tests*' '*include*' -o /tmp/coverage.info
 
+  build:
+    needs: tests-coverage
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: sudo apt-get install libopencv-dev -y
+
     - name: Configure CMake for builds
       run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build
 
     - name: Build application
       run: cmake --build ${{github.workspace}}/build
+
+  packaging:
+    needs: build
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: sudo apt-get install libopencv-dev -y
 
     - name: Generate Debian packages
       run: cpack -G DEB -B ${{github.workspace}}/build --config build/CPackConfig.cmake
