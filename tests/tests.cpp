@@ -95,6 +95,18 @@ TEST_CASE("Testing the detection pipeline"){
         REQUIRE(Size(dimensions) == Size(10, 5));
     }
 
+    SECTION("Measurements of two points."){
+
+        Point firstPoint(0, 0);
+        Point secondPoint(1, 1);
+        unsigned short int markerNormX(1);
+
+        corner.markerSize = Point2f(1, 1);
+
+        // Avoiding float comparisons
+        REQUIRE((int)corner.measure(firstPoint, secondPoint, markerNormX) == 1);
+    }
+
     SECTION("Check measurements drawing"){
         Mat imageToDetect;
         imageDetection.copyTo(imageToDetect);
