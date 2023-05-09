@@ -29,7 +29,8 @@ jobs:
 
     - name: Upload deb package to releases
       uses: actions/upload-release-asset@v1
-      env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ${{github.workspace}}/build/corner_${{ github.ref }}_amd64.deb
