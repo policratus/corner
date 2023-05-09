@@ -1,8 +1,9 @@
 name: Releases
 
 on:
-  release:
-    types: [prereleased]
+  push:
+    tags:
+      - '[0-9][0-9].[0-9][0-9].[0-9][0-9]'
 
 jobs:
   packaging:
@@ -27,19 +28,19 @@ jobs:
       id: create_release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{github.ref}}
+        release_name: Release ${{github.ref}}
         draft: false
         prerelease: true
 
     - name: Upload deb package to releases
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{github.workspace}}/build/corner_${{ github.ref }}_amd64.deb
+        upload_url: ${{steps.create_release.outputs.upload_url}}
+        asset_path: ${{github.workspace}}/build/corner_${{github.ref}}_amd64.deb
         asset_name: corner_${{ github.ref }}_amd64.deb
         asset_content_type: application/vnd.debian.binary-package
