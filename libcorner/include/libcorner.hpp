@@ -33,6 +33,7 @@ class Corner{
         void resizeToFit(Mat &image);
         RotatedRect boundingBox(Mat image);
         Size2f measure(Point2f* rotatedBox, Point2f markerNorms);
+        float measure(Point start, Point end, unsigned short int markerNormX);
         void drawMeasurementsObject(Mat &image, Point2f markerNorms);
 };
 

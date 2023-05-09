@@ -240,6 +240,11 @@ Size2f Corner::measure(Point2f* rotatedBox, Point2f markerNorms){
 }
 
 
+float Corner::measure(Point start, Point end, unsigned short int markerNormX){
+    return norm(Mat(start), Mat(end)) * markerSize.x / markerNormX;
+}
+
+
 void Corner::drawMeasurementsObject(Mat &image, Point2f markerNorms){
     /*
      * Draws the calculated measurements for the object of interest.
