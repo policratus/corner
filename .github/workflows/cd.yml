@@ -1,0 +1,37 @@
+name: Releases
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  packaging:
+    runs-on: ubuntu-latest
+
+    needs: tests-coverage
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: sudo apt-get install libopencv-dev -y
+
+    - name: Configure CMake for builds
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build
+
+    - name: Build application
+      run: cmake --build ${{github.workspace}}/build
+
+    - name: Generate Debian packages
+      run: cpack -G DEB -B ${{github.workspace}}/build --config build/CPackConfig.cmake
+
+    - name: Upload deb package to releases
+      uses: actions/upload-release-asset@v1
+      env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{github.workspace}}/build/corner_${{ github.ref }}_amd64.deb
+        asset_name: corner_${{ github.ref }}_amd64.deb
+        asset_content_type: application/vnd.debian.binary-package
