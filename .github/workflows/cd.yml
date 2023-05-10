@@ -25,6 +25,7 @@ jobs:
 
     - name: Upload release assets
       run: |
+        echo ${{github.token}} | gh auth login --with-token
         for package in build/*deb; do
           gh release upload ${{github.event.release.tag_name}} $package
         done
