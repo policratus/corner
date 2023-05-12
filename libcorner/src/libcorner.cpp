@@ -80,15 +80,15 @@ double Corner::resizeRespectingRatio(Size currentSize){
 tuple<string, path, float, float> Corner::commandLine(int const argumentCount, char** const argumentValues){
     // Command line options
     const String keys =
-        "{help h usage ?||Help and usage for Corner}"
+        "{help h usage ?||Help and usage for corner}"
         "{@marker|<none>|Path where the image marker are stored}"
-        "{@video|<none>|Path to the video file, streaming URI or webcam}"
+        "{@video|<none>|Path to the video file, streaming URI or camera}"
         "{height|5.0|Height of the marker (in cm.)}"
         "{width|5.0|Width of the marker (in cm.)}"
         ;
 
     CommandLineParser parser(argumentCount, argumentValues, keys);
-    parser.about("📏 Corner virtual rulers: measure objects with precision using images.");
+    parser.about("📐 Corner: measuring objects using only images.");
 
     if (parser.has("help")) parser.printMessage();
 
