@@ -1,0 +1,35 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  packaging:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: sudo apt-get install libopencv-dev -y
+
+    - name: Configure CMake for builds
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build
+
+    - name: Build application
+      run: cmake --build ${{github.workspace}}/build
+
+    - name: Generate Debian packages
+      run: cpack -G DEB -B ${{github.workspace}}/build --config build/CPackConfig.cmake
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: build/corner_${{github.ref_name}}_amd64.deb
+        generate_release_notes: true
