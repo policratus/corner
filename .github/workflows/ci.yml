@@ -49,6 +49,7 @@ jobs:
       with:
         fail_ci_if_error: true
         files: /tmp/coverage.info
+        token: ${{secrets.CODECOV_TOKEN}}
 
   build:
     needs: tests-coverage
