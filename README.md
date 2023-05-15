@@ -1,5 +1,6 @@
 [![CI](https://github.com/policratus/corner/actions/workflows/ci.yml/badge.svg)](https://github.com/policratus/corner/actions/workflows/ci.yml)
 [![CD](https://github.com/policratus/corner/actions/workflows/cd.yml/badge.svg)](https://github.com/policratus/corner/actions/workflows/cd.yml)
+[![codecov](https://codecov.io/gh/policratus/corner/branch/main/graph/badge.svg?token=5cmuypkroI)](https://codecov.io/gh/policratus/corner)
 
 ![corner](docs/corner.png)
 
