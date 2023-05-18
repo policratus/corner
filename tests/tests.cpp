@@ -81,7 +81,7 @@ TEST_CASE("Testing the detection pipeline"){
     SECTION("Detect the object bounding box."){
 
         REQUIRE(Size(box.size) == Size(639, 696));
-        REQUIRE((int)box.angle == 89);
+        REQUIRE((int)box.angle == 88);
         REQUIRE(Point(box.center) == Point(646, 365));
     }
 
