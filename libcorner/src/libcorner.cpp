@@ -159,22 +159,6 @@ void Corner::findMarker(Mat image, Mat &frame, Size2f measurements, Point2f &nor
 
             perspectiveTransform(markerCorners, markerCorners, homography);
 
-            const Scalar arrowColor = Scalar(113, 217, 125);
-            arrowedLine(frame, markerCorners[0], markerCorners[1], arrowColor, 1, LINE_AA);
-            arrowedLine(frame, markerCorners[1], markerCorners[2], arrowColor, 1, LINE_AA);
-
-            const Scalar textColor = Scalar(128, 64, 32);
-            putText(
-                frame, format("%3.2f", measurements.height) + "cm",
-                (markerCorners[1] + markerCorners[2]) / 2, FONT_HERSHEY_DUPLEX, .5,
-                textColor, 1, LINE_AA
-            );
-            putText(
-                frame, format("%3.2f", measurements.width) + "cm",
-                (markerCorners[0] + markerCorners[1]) / 2, FONT_HERSHEY_DUPLEX, .5,
-                textColor, 1, LINE_AA
-            );
-
             // Returning the norms from the found segments
             norms.x = norm(Mat(markerCorners[0]), Mat(markerCorners[1]));
             norms.y = norm(Mat(markerCorners[1]), Mat(markerCorners[2]));
@@ -201,7 +185,7 @@ RotatedRect Corner::boundingBox(Mat image){
      * Detect the minimal rotated bounding box for the object.
     */
 
-    const unsigned short int edgeThreshold = 100;
+    const unsigned short int edgeThreshold = 10;
     double maxContoursArea(0.);
 
     Mat edges, imageOneChannel;
@@ -209,10 +193,9 @@ RotatedRect Corner::boundingBox(Mat image){
     vector<vector<Point>> contours;
 
     cvtColor(image, imageOneChannel, COLOR_BGR2GRAY);
-    blur(imageOneChannel, imageOneChannel, Size(3, 3));
-    Canny(imageOneChannel, edges, edgeThreshold, edgeThreshold * 3, 3, true);
-    dilate(edges, edges, noArray());
-    erode(edges, edges, noArray());
+    Canny(imageOneChannel, edges, edgeThreshold, edgeThreshold * 10, 3, true);
+    dilate(edges, edges, noArray(), Point(-1, -1), 7);
+    erode(edges, edges, noArray(), Point(-1, -1), 5);
     findContours(edges, contours, RETR_EXTERNAL, CHAIN_APPROX_TC89_KCOS);
 
     for (vector<Point> &contour: contours){
@@ -241,6 +224,11 @@ Size2f Corner::measure(Point2f* rotatedBox, Point2f markerNorms){
 
 
 float Corner::measure(Point start, Point end, unsigned short int markerNormX){
+    /*
+     * Overload of measure that receives points and norms instead of the rotated
+     * box
+    */
+
     return norm(Mat(start), Mat(end)) * markerSize.x / markerNormX;
 }
 
@@ -254,23 +242,23 @@ void Corner::drawMeasurementsObject(Mat &image, Point2f markerNorms){
     Point2f rotatedBox[4];
     rotatedRectangle.points(rotatedBox);
 
-    const Scalar rotatedRectangleColor = Scalar(245, 118, 219);
-    line(image, rotatedBox[0], rotatedBox[1], rotatedRectangleColor, 1, LINE_AA);
-    line(image, rotatedBox[1], rotatedBox[2], rotatedRectangleColor, 1, LINE_AA);
-    line(image, rotatedBox[2], rotatedBox[3], rotatedRectangleColor, 1, LINE_AA);
-    line(image, rotatedBox[3], rotatedBox[0], rotatedRectangleColor, 1, LINE_AA);
-
     Size2f sizes(measure(rotatedBox, markerNorms));
 
-    const Scalar textColor = Scalar(34, 76, 173);
-    putText(
-        image, format("%3.2f", sizes.width) + "cm",
-        (rotatedBox[0] + rotatedBox[1]) / 2, FONT_HERSHEY_DUPLEX, .5,
-        textColor, 1, LINE_AA
-    );
-    putText(
-        image, format("%3.2f", sizes.height) + "cm",
-        (rotatedBox[1] + rotatedBox[2]) / 2, FONT_HERSHEY_DUPLEX, .5,
-        textColor, 1, LINE_AA
-    );
+    if (!isinf(sizes.width) && !isinf(sizes.height)){
+        const Scalar rotatedRectangleColor = Scalar(104, 163, 0);
+        arrowedLine(image, rotatedBox[0], rotatedBox[1], rotatedRectangleColor, 3, LINE_AA, 0, .05);
+        arrowedLine(image, rotatedBox[1], rotatedBox[2], rotatedRectangleColor, 3, LINE_AA, 0, .05);
+
+        const Scalar textColor = Scalar(51, 2, 196);
+        putText(
+            image, format("%3.2f", sizes.width) + "cm",
+            (rotatedBox[0] + rotatedBox[1]) / 2, FONT_HERSHEY_DUPLEX, .8,
+            textColor, 1, LINE_AA
+        );
+        putText(
+            image, format("%3.2f", sizes.height) + "cm",
+            (rotatedBox[1] + rotatedBox[2]) / 2, FONT_HERSHEY_DUPLEX, .8,
+            textColor, 1, LINE_AA
+        );
+    }
 }
