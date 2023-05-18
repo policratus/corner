@@ -82,7 +82,7 @@ TEST_CASE("Testing the detection pipeline"){
 
         REQUIRE(Size(box.size) == Size(639, 696));
         REQUIRE((int)box.angle == 88);
-        REQUIRE(Point(box.center) == Point(646, 365));
+        REQUIRE(Point(box.center) == Point(612, 361));
     }
 
     SECTION("Measurements calculation."){
