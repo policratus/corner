@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.22)
 
-project(tests VERSION 0.0.1)
+project(tests VERSION 0.0.2)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
