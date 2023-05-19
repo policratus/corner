@@ -13,7 +13,7 @@ using namespace std;
 using namespace filesystem;
 
 
-// Store mouse positions
+// Stores mouse positions
 Point mouseClick(0, 0), mousePosition(0, 0);
 
 
@@ -41,7 +41,7 @@ int main(int argc, char** argv){
     // Global frame capsule
     Mat frame;
 
-    Corner corner(Size(1280, 720));
+    Corner corner(Size(1920, 1080));
 
     VideoCapture video;
 
@@ -149,11 +149,11 @@ int main(int argc, char** argv){
 
         // Draw a segment similar to a ruler
         if (mouseClick.dot(mousePosition) > 0){
-            line(frame, mouseClick, mousePosition, Scalar(99, 204, 67), 2, LINE_AA);
+            arrowedLine(frame, mouseClick, mousePosition, Scalar(191, 136, 0), 3, LINE_AA, 0, .05);
             putText(
                 frame, format("%3.2f", corner.measure(mouseClick, mousePosition, norms.x)) + "cm",
                 (mouseClick + mousePosition) / 2, FONT_HERSHEY_DUPLEX,
-                .5, Scalar(104, 70, 67), 1, LINE_AA
+                .8, Scalar(0, 211, 255), 1, LINE_AA
             );
         }
 
