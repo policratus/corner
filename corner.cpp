@@ -41,7 +41,7 @@ int main(int argc, char** argv){
     // Global frame capsule
     Mat frame;
 
-    Corner corner(Size(1280, 720));
+    Corner corner(Size(1920, 1080));
 
     VideoCapture video;
 
