@@ -9,7 +9,7 @@
 ### Real-time 2D measurements of objects based on visual markers.
 ---
 
-![output](https://github.com/policratus/corner/assets/827563/0e6cbb25-1110-42e7-b151-a0f6554f5257)
+![output](https://github.com/policratus/corner/assets/827563/7aead798-5787-463e-89de-d32c9234f164)
 
 ## 📐 What `corner` does?
 `corner` is a measurement tool using only visual references present in videos, without the need of specialized hardware like [LIDAR](https://en.wikipedia.org/wiki/Lidar) sensors or any kind of [RBG-D](https://www.e-consystems.com/blog/camera/technology/what-are-rgbd-cameras-why-rgbd-cameras-are-preferred-in-some-embedded-vision-applications) devices (despite having less accuracy). It only needs a [fiducial marker](https://en.wikipedia.org/wiki/Fiducial_marker) inside the scene (with known dimensions), which can be from a simple ArUco marker, a book cover or even a [banana](https://knowyourmeme.com/memes/banana-for-scale).
