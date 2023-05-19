@@ -33,10 +33,9 @@ If any specific needs comes up, it is also pretty easy and straightforward to co
 
 ```shell
 git clone git@github.com:policratus/corner.git
-cd corner
-cmake -S . -B build/
-cmake --build build/
-cmake --install build/
+cmake -S corner -B corner/build
+cmake --build corner/build
+cmake --install corner/build
 ```
 
 ##### Dependencies
